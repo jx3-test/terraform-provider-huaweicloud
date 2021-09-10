@@ -30,11 +30,14 @@ The following arguments are supported:
 * `name` - (Required, String, ForceNew) The acceleration domain name. Changing this parameter will create a new
   resource.
 
-* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download' and 'video'. Changing
-  this parameter will create a new resource.
+* `type` - (Required, String, ForceNew) The service type. The valid values are  'web', 'download', 'video' and
+  'wholeSite'.  Changing this parameter will create a new resource.
 
 * `sources` - (Required, List, ForceNew) An array of one or more objects specifies the domain name of the origin server.
   The sources object structure is documented below.
+
+* `service_area` - (Optional, String, ForceNew) The area covered by the acceleration service. Valid values are
+  `mainland_china`, `outside_mainland_china`, and `global`. Changing this parameter will create a new resource.
 
 * `enterprise_project_id` - (Optional, String, ForceNew) The enterprise project id. Changing this parameter will create
   a new resource.
@@ -58,8 +61,6 @@ In addition to all arguments above, the following attributes are exported:
 
 * `domain_status` - The status of the acceleration domain name. The available values are
   'online', 'offline', 'configuring', 'configure_failed', 'checking', 'check_failed' and 'deleting.'
-
-* `service_area` - The area covered by the acceleration service.
 
 ## Timeouts
 

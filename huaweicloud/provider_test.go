@@ -96,11 +96,7 @@ func testAccPreCheckDeprecated(t *testing.T) {
 
 func testAccPreCheckAdminOnly(t *testing.T) {
 	if HW_ADMIN == "" {
-		t.Skip("Skipping test because it requires the admin user group")
-	}
-
-	if HW_DOMAIN_ID == "" && HW_DOMAIN_NAME == "" {
-		t.Fatal("HW_DOMAIN_ID or HW_DOMAIN_NAME must be set for acceptance tests with admin privileges")
+		t.Skip("Skipping test because it requires the admin privileges")
 	}
 }
 
@@ -236,7 +232,7 @@ func TestAccProvider_caCertFile(t *testing.T) {
 
 	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	if diags.HasError() {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by file: %s", diags[0].Detail)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by file: %s", diags[0].Summary)
 	}
 }
 
@@ -260,7 +256,7 @@ func TestAccProvider_caCertString(t *testing.T) {
 
 	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	if diags.HasError() {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by string: %s", diags[0].Detail)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud CA by string: %s", diags[0].Summary)
 	}
 }
 
@@ -292,7 +288,7 @@ func TestAccProvider_clientCertFile(t *testing.T) {
 
 	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	if diags.HasError() {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by file: %s", diags[0].Detail)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by file: %s", diags[0].Summary)
 	}
 }
 
@@ -322,7 +318,7 @@ func TestAccProvider_clientCertString(t *testing.T) {
 
 	diags := p.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	if diags.HasError() {
-		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by contents: %s", diags[0].Detail)
+		t.Fatalf("Unexpected err when specifying HuaweiCloud Client keypair by contents: %s", diags[0].Summary)
 	}
 }
 

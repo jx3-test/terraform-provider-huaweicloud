@@ -12,6 +12,8 @@ package common
 import (
 	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/bss/v2/orders"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -50,6 +52,17 @@ func CheckDeleted(d *schema.ResourceData, err error, msg string) error {
 	return fmtp.Errorf("%s: %s", msg, err)
 }
 
+// CheckDeletedDiag checks the error to see if it's a 404 (Not Found) and, if so,
+// sets the resource ID to the empty string instead of throwing an error.
+func CheckDeletedDiag(d *schema.ResourceData, err error, msg string) diag.Diagnostics {
+	if _, ok := err.(golangsdk.ErrDefault404); ok {
+		d.SetId("")
+		return nil
+	}
+
+	return diag.Errorf("%s: %s", msg, err)
+}
+
 // UnsubscribePrePaidResource impl the action of unsubscribe resource
 func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, resourceIDs []string) error {
 	bssV2Client, err := config.BssV2Client(GetRegion(d, config))
@@ -63,13 +76,4 @@ func UnsubscribePrePaidResource(d *schema.ResourceData, config *config.Config, r
 	}
 	_, err = orders.Unsubscribe(bssV2Client, unsubscribeOpts).Extract()
 	return err
-}
-
-// TagsSchema is a schema for terraform resoruces with optional behavior.
-func TagsSchema() *schema.Schema {
-	return &schema.Schema{
-		Type:     schema.TypeMap,
-		Optional: true,
-		Elem:     &schema.Schema{Type: schema.TypeString},
-	}
 }
