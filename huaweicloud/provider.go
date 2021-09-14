@@ -16,6 +16,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/fgs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/gaussdb"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/iam"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/lb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/mrs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/vpc"
@@ -300,6 +301,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_gaussdb_redis_instance":               dataSourceGaussRedisInstance(),
 			"huaweicloud_identity_role":                        DataSourceIdentityRoleV3(),
 			"huaweicloud_identity_custom_role":                 DataSourceIdentityCustomRole(),
+			"huaweicloud_identity_group":                       iam.DataSourceIdentityGroup(),
 			"huaweicloud_iec_eips":                             dataSourceIECNetworkEips(),
 			"huaweicloud_iec_flavors":                          dataSourceIecFlavors(),
 			"huaweicloud_iec_images":                           dataSourceIecImages(),
