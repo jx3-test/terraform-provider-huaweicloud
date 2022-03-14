@@ -19,3 +19,5 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/unknwon/com v1.0.1
 )
+
+replace github.com/chnsz/golangsdk => ../golangsdk
