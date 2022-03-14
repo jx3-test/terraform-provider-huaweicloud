@@ -14,6 +14,7 @@ import (
 	"github.com/chnsz/golangsdk/openstack/ecs/v1/nics"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/logp"
 )
@@ -126,6 +127,11 @@ func resourceComputeInterfaceAttachV2Create(ctx context.Context, d *schema.Resou
 		securityGroupIds = append(securityGroupIds, nics.IdInfo{Id: v.(string)})
 	}
 
+	currentNics, err := nics.Get(computeClient, instanceId)
+	if err != nil {
+		return fmtp.DiagErrorf("Error getting the nics of ECS: %s", err)
+	}
+
 	opts := nics.CreateOps{
 		Nics: []nics.NicReq{
 			{
@@ -135,6 +141,7 @@ func resourceComputeInterfaceAttachV2Create(ctx context.Context, d *schema.Resou
 			},
 		},
 	}
+	currentNics.InterfaceAttachments
 
 	createRst := nics.Create(computeClient, instanceId, opts)
 	if createRst.Err != nil {
@@ -282,7 +289,7 @@ func computeInterfaceAttachV2AttachFunc(
 	}
 }
 
-func waitingNotebookForRunning(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, createOpts nics.NicReq, timeout time.Duration) error {
+func waitingNotebookForRunning(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, newNic nics.NicReq, curPorts []String, timeout time.Duration) error {
 	createStateConf := &resource.StateChangeConf{
 		Pending: []string{"ATTACHING"},
 		Target:  []string{"ATTACHED"},
@@ -290,6 +297,13 @@ func waitingNotebookForRunning(ctx context.Context, client *golangsdk.ServiceCli
 			resp, err := nics.Get(client, instanceId)
 			if err != nil {
 				return nil, "failed", err
+			}
+
+			for _, v := range resp.InterfaceAttachments {
+				if !utils.StrSliceContains(curPorts, v.PortId) {
+					v.po
+				}
+
 			}
 
 			return resp, "", err
