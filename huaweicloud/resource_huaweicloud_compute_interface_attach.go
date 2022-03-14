@@ -1,13 +1,17 @@
 package huaweicloud
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/compute/v2/extensions/attachinterfaces"
+	"github.com/chnsz/golangsdk/openstack/ecs/v1/nics"
 	"github.com/chnsz/golangsdk/openstack/networking/v2/ports"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils/fmtp"
@@ -16,10 +20,10 @@ import (
 
 func ResourceComputeInterfaceAttachV2() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceComputeInterfaceAttachV2Create,
-		Read:   resourceComputeInterfaceAttachV2Read,
-		Update: resourceComputeInterfaceAttachV2Update,
-		Delete: resourceComputeInterfaceAttachV2Delete,
+		CreateContext: resourceComputeInterfaceAttachV2Create,
+		Read:          resourceComputeInterfaceAttachV2Read,
+		Update:        resourceComputeInterfaceAttachV2Update,
+		Delete:        resourceComputeInterfaceAttachV2Delete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -48,71 +52,96 @@ func ResourceComputeInterfaceAttachV2() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ExactlyOneOf: []string{"port_id", "network_id"},
+				ExactlyOneOf: []string{"port_id", "network_id", "subnet_id"},
+				Deprecated:   "Please use subnet_id instead.",
 			},
-			"port_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				ForceNew: true,
+
+			"subnet_id": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"port_id", "network_id", "subnet_id"},
 			},
+
 			"fixed_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
+
+			"security_group_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
+			},
+
 			"source_dest_check": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
+
+			"port_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"mac": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"attachable_quantity": {
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interface{}) error {
+func resourceComputeInterfaceAttachV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*config.Config)
-	computeClient, err := config.ComputeV2Client(GetRegion(d, config))
+	region := config.GetRegion(d)
+	computeClient, err := config.ComputeV2Client(region)
 	if err != nil {
-		return fmtp.Errorf("Error creating HuaweiCloud compute client: %s", err)
+		return fmtp.DiagErrorf("Error creating compute client: %s", err)
 	}
 
 	instanceId := d.Get("instance_id").(string)
 
-	var portId string
-	if v, ok := d.GetOk("port_id"); ok {
-		portId = v.(string)
-	}
-
-	var networkId string
+	var subnetId string
 	if v, ok := d.GetOk("network_id"); ok {
-		networkId = v.(string)
+		subnetId = v.(string)
 	}
 
-	// For some odd reason the API takes an array of IPs, but you can only have one element in the array.
-	var fixedIPs []attachinterfaces.FixedIP
-	if v, ok := d.GetOk("fixed_ip"); ok {
-		fixedIPs = append(fixedIPs, attachinterfaces.FixedIP{IPAddress: v.(string)})
+	if v, ok := d.GetOk("subnet_id"); ok {
+		subnetId = v.(string)
 	}
 
-	attachOpts := attachinterfaces.CreateOpts{
-		PortID:    portId,
-		NetworkID: networkId,
-		FixedIPs:  fixedIPs,
+	var securityGroupIds []nics.IdInfo
+	if v, ok := d.GetOk("security_group_id"); ok {
+		securityGroupIds = append(securityGroupIds, nics.IdInfo{Id: v.(string)})
 	}
 
-	logp.Printf("[DEBUG] huaweicloud_compute_interface_attach attach options: %#v", attachOpts)
-	attachment, err := attachinterfaces.Create(computeClient, instanceId, attachOpts).Extract()
-	if err != nil {
-		return err
+	opts := nics.CreateOps{
+		Nics: []nics.NicReq{
+			{
+				SubnetId:       subnetId,
+				IpAddress:      d.Get("fixed_ip").(string),
+				SecurityGroups: securityGroupIds,
+			},
+		},
 	}
 
-	portID := attachment.PortID
+	createRst := nics.Create(computeClient, instanceId, opts)
+	if createRst.Err != nil {
+		return fmtp.DiagErrorf("Error creating huaweicloud_compute_interface_attach: %s", createRst.Err)
+	}
+
+	portID := "attachment.PortID"
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"ATTACHING"},
 		Target:     []string{"ATTACHED"},
@@ -123,27 +152,27 @@ func resourceComputeInterfaceAttachV2Create(d *schema.ResourceData, meta interfa
 	}
 
 	if _, err = stateConf.WaitForState(); err != nil {
-		return fmtp.Errorf("Error creating huaweicloud_compute_interface_attach %s: %s", instanceId, err)
+		return diag.Errorf("Error creating huaweicloud_compute_interface_attach %s: %s", instanceId, err)
 	}
 
 	// Use the instance ID and port ID as the resource ID.
 	id := fmt.Sprintf("%s/%s", instanceId, portID)
 
-	logp.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
+	//	logp.Printf("[DEBUG] Created huaweicloud_compute_interface_attach %s: %#v", id, attachment)
 
 	d.SetId(id)
 
 	if sourceDestCheck := d.Get("source_dest_check").(bool); !sourceDestCheck {
 		nicClient, err := config.NetworkingV2Client(GetRegion(d, config))
 		if err != nil {
-			return fmtp.Errorf("Error creating HuaweiCloud networking client: %s", err)
+			return diag.Errorf("Error creating HuaweiCloud networking client: %s", err)
 		}
 		if err := disableSourceDestCheck(nicClient, portID); err != nil {
-			return fmtp.Errorf("Error disable source dest check on port(%s) of instance(%s) failed: %s", portID, d.Id(), err)
+			return diag.Errorf("Error disable source dest check on port(%s) of instance(%s) failed: %s", portID, d.Id(), err)
 		}
 	}
 
-	return resourceComputeInterfaceAttachV2Read(d, meta)
+	return nil
 }
 
 func resourceComputeInterfaceAttachV2Read(d *schema.ResourceData, meta interface{}) error {
@@ -235,5 +264,43 @@ func resourceComputeInterfaceAttachV2Delete(d *schema.ResourceData, meta interfa
 		return fmtp.Errorf("Error detaching huaweicloud_compute_interface_attach %s: %s", d.Id(), err)
 	}
 
+	return nil
+}
+
+func computeInterfaceAttachV2AttachFunc(
+	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		va, err := attachinterfaces.Get(computeClient, instanceId, attachmentId).Extract()
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				return va, "ATTACHING", nil
+			}
+			return va, "", err
+		}
+
+		return va, "ATTACHED", nil
+	}
+}
+
+func waitingNotebookForRunning(ctx context.Context, client *golangsdk.ServiceClient, instanceId string, createOpts nics.NicReq, timeout time.Duration) error {
+	createStateConf := &resource.StateChangeConf{
+		Pending: []string{"ATTACHING"},
+		Target:  []string{"ATTACHED"},
+		Refresh: func() (interface{}, string, error) {
+			resp, err := nics.Get(client, instanceId)
+			if err != nil {
+				return nil, "failed", err
+			}
+
+			return resp, "", err
+		},
+		Timeout:      timeout,
+		PollInterval: 10 * timeout,
+		Delay:        10 * time.Second,
+	}
+	_, err := createStateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return fmt.Errorf("error waiting for ModelArts notebook (%s) to be created: %s", instanceId, err)
+	}
 	return nil
 }

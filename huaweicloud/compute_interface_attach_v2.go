@@ -12,21 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func computeInterfaceAttachV2AttachFunc(
-	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		va, err := attachinterfaces.Get(computeClient, instanceId, attachmentId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return va, "ATTACHING", nil
-			}
-			return va, "", err
-		}
-
-		return va, "ATTACHED", nil
-	}
-}
-
 func computeInterfaceAttachV2DetachFunc(
 	computeClient *golangsdk.ServiceClient, instanceId, attachmentId string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
