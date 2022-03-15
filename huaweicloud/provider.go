@@ -29,6 +29,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dms"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/drs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/dws"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ecs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eip"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/elb"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/eps"
@@ -469,7 +470,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ces_alarmrule":                    ces.ResourceAlarmRule(),
 			"huaweicloud_cloudtable_cluster":               cloudtable.ResourceCloudTableCluster(),
 			"huaweicloud_compute_instance":                 ResourceComputeInstanceV2(),
-			"huaweicloud_compute_interface_attach":         ResourceComputeInterfaceAttachV2(),
+			"huaweicloud_compute_interface_attach":         ecs.ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair":                  ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup":              ResourceComputeServerGroupV2(),
 			"huaweicloud_compute_eip_associate":            ResourceComputeFloatingIPAssociateV2(),
@@ -628,7 +629,7 @@ func Provider() *schema.Provider {
 			// Legacy
 			"huaweicloud_networking_eip_associate":           eip.ResourceEIPAssociate(),
 			"huaweicloud_compute_instance_v2":                ResourceComputeInstanceV2(),
-			"huaweicloud_compute_interface_attach_v2":        ResourceComputeInterfaceAttachV2(),
+			"huaweicloud_compute_interface_attach_v2":        ecs.ResourceComputeInterfaceAttachV2(),
 			"huaweicloud_compute_keypair_v2":                 ResourceComputeKeypairV2(),
 			"huaweicloud_compute_servergroup_v2":             ResourceComputeServerGroupV2(),
 			"huaweicloud_compute_volume_attach_v2":           ResourceComputeVolumeAttachV2(),

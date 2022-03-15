@@ -686,7 +686,7 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 		}
 
 		if sourceDestCheck := nic["source_dest_check"].(bool); !sourceDestCheck {
-			if err := disableSourceDestCheck(nicClient, nicPort); err != nil {
+			if err := DisableSourceDestCheck(nicClient, nicPort); err != nil {
 				return fmtp.Errorf("Error disable source dest check on port(%s) of instance(%s) failed: %s", nicPort, d.Id(), err)
 			}
 		}
@@ -1567,7 +1567,7 @@ func doPowerAction(client *golangsdk.ServiceClient, d *schema.ResourceData, acti
 	return nil
 }
 
-func disableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
+func DisableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
 	// Update the allowed-address-pairs of the port to 1.1.1.1/0
 	// to disable the source/destination check
 	portpairs := []ports.AddressPair{
@@ -1583,7 +1583,7 @@ func disableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID strin
 	return err
 }
 
-func enableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
+func EnableSourceDestCheck(networkClient *golangsdk.ServiceClient, portID string) error {
 	// cancle all allowed-address-pairs to enable the source/destination check
 	portpairs := make([]ports.AddressPair, 0)
 	portUpdateOpts := ports.UpdateOpts{
@@ -1608,9 +1608,9 @@ func updateSourceDestCheck(d *schema.ResourceData, client *golangsdk.ServiceClie
 		if d.HasChange(fmt.Sprintf("network.%d.source_dest_check", i)) {
 			sourceDestCheck := nic["source_dest_check"].(bool)
 			if !sourceDestCheck {
-				err = disableSourceDestCheck(client, nicPort)
+				err = DisableSourceDestCheck(client, nicPort)
 			} else {
-				err = enableSourceDestCheck(client, nicPort)
+				err = EnableSourceDestCheck(client, nicPort)
 			}
 
 			if err != nil {
