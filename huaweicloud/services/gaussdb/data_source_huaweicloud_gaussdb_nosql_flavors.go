@@ -156,9 +156,12 @@ func dataSourceGaussDBFlavorsRead(_ context.Context, d *schema.ResourceData, met
 	if err != nil {
 		return fmtp.DiagErrorf("An error occurred while filtering the GaussDB NoSQL flavors: %s", err)
 	}
+
+	err = d.Set("flavors", result)
+	if err != nil {
+		return fmtp.DiagErrorf("saving the %q failed: %s", "flavors", err)
+	}
+
 	d.SetId(hashcode.Strings(names))
-
-	d.Set("flavors", result)
-
 	return nil
 }

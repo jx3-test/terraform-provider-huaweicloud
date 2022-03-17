@@ -263,11 +263,11 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 
 	enterpriseProjectId := parseEnterpriseProjectIdFromSysTags(detail.SysTags)
 	if enterpriseProjectId != "" && enterpriseProjectId != "0" {
-		multierror.Append(mErr, d.Set("enterprise_project_id", enterpriseProjectId))
+		mErr = multierror.Append(mErr, d.Set("enterprise_project_id", enterpriseProjectId))
 	}
 
 	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
+		return fmtp.DiagErrorf("error setting fields: %s", setSdErr)
 	}
 
 	return nil

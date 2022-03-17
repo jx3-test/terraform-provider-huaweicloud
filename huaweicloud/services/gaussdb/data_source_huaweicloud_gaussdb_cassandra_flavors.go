@@ -123,8 +123,11 @@ func dataSourceCassandraFlavorsRead(_ context.Context, d *schema.ResourceData, m
 		flavorsToSet = append(flavorsToSet, flavorToSet)
 	}
 
-	d.SetId(hashcode.Strings(flavorsIds))
-	d.Set("flavors", flavorsToSet)
+	err = d.Set("flavors", flavorsToSet)
+	if err != nil {
+		return fmtp.DiagErrorf("saving the %q failed: %s", "flavors", err)
+	}
 
+	d.SetId(hashcode.Strings(flavorsIds))
 	return nil
 }

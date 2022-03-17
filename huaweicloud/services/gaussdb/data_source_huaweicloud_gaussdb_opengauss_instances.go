@@ -347,8 +347,11 @@ func dataSourceOpenGaussInstancesRead(ctx context.Context, d *schema.ResourceDat
 		instancesToSet = append(instancesToSet, instanceToSet)
 	}
 
-	d.SetId(hashcode.Strings(instancesIds))
-	d.Set("instances", instancesToSet)
+	err = d.Set("instances", instancesToSet)
+	if err != nil {
+		return fmtp.DiagErrorf("saving the %q failed: %s", "instances", err)
+	}
 
+	d.SetId(hashcode.Strings(instancesIds))
 	return nil
 }
