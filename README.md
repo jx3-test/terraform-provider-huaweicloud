@@ -10,6 +10,8 @@ Terraform HuaweiCloud Provider
 <!-- markdownlint-disable-next-line MD033 -->
 <a href="https://www.huaweicloud.com/"><img width="450px" height="102px" src="https://console-static.huaweicloud.com/static/authui/20210202115135/public/custom/images/logo-en.svg"></a>
 
+colour
+
 Requirements
 ------------
 
