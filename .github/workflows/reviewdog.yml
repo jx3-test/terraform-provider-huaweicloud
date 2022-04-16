@@ -20,6 +20,7 @@ jobs:
         with:
           go-version: ">=1.16"
 
+      - run: echo ${{github.base_ref}} 
       - run: scripts/prAccTest.sh ${{github.base_ref}} ${{github.head_ref}} #> pr-acc-test.log
         env:
           HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
