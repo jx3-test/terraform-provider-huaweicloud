@@ -233,7 +233,7 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 	region := config.GetRegion(d)
 	client, err := config.DisV2Client(region)
 	if err != nil {
-		return diag.Errorf("error creating DIS v2 client, err=%s", err)
+		return diag.Errorf("error creating DIS v2 client2, err=%s", err)
 	}
 
 	detail, dErr := streams.Get(client, d.Id(), streams.GetOpts{})
