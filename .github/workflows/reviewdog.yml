@@ -30,12 +30,12 @@ jobs:
       - run: scripts/prAccTest.sh > pr-acc-test.log
 
       - id: get-comment-body
-          run: |
-            body="$(cat pr-acc-test.log)"
-            body="${body//'%'/'%25'}"
-            body="${body//$'\n'/'%0A'}"
-            body="${body//$'\r'/'%0D'}" 
-            echo "::set-output name=body::$body"
+        run: |
+          body="$(cat pr-acc-test.log)"
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}" 
+          echo "::set-output name=body::$body"
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
