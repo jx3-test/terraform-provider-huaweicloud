@@ -10,3 +10,32 @@ jobs:
       - uses: reviewdog/action-golangci-lint@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+
+  pr-acc-test:
+   # if: github.repository == 'huaweicloud/terraform-provider-huaweicloud'
+    if: ${{ env.HW_ACCESS_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.16"
+
+      - run: scripts/prAccTest.sh > pr-acc-test.log
+
+      - id: get-comment-body
+          run: |
+            body="$(cat pr-acc-test.log)"
+            body="${body//'%'/'%25'}"
+            body="${body//$'\n'/'%0A'}"
+            body="${body//$'\r'/'%0D'}" 
+            echo "::set-output name=body::$body"
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: 1
+          body: ${{ steps.get-comment-body.outputs.body }}
+          reactions: '+1'    
+    
