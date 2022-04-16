@@ -13,13 +13,6 @@ jobs:
 
 
   pr-acc-test:
-    env:
-      HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
-      HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
-      HW_REGION_NAME: cn-north-4
-      HW_ENTERPRISE_PROJECT_ID: "0"
-   # if: github.repository == 'huaweicloud/terraform-provider-huaweicloud'
-    if: ${{ env.HW_ACCESS_KEY }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +21,11 @@ jobs:
           go-version: ">=1.16"
 
       - run: scripts/prAccTest.sh > pr-acc-test.log
+        env:
+          HW_ACCESS_KEY: ${{ secrets.HW_ACCESS_KEY }}
+          HW_SECRET_KEY: ${{ secrets.HW_SECRET_KEY }}
+          HW_REGION_NAME: cn-north-4
+          HW_ENTERPRISE_PROJECT_ID: "0"
 
       - id: get-comment-body
         run: |
