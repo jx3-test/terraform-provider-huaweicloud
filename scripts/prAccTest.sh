@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #git fetch --no-tags --prune --depth=1 origin +refs/heads/master:refs/remotes/origin/master
-all_files=$(git diff origin/master HEAD --name-only huaweicloud | grep -v "_test.go")
+all_files=$(git diff $1 $2 --name-only huaweicloud | grep -v "_test.go")
 
 for f in $all_files; do
     path=${f%/*}
