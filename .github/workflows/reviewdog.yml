@@ -23,8 +23,9 @@ jobs:
         with:
           go-version: ">=1.16"
 
+      - run: git branch -a
       - run: |
-          all_files=$(git diff ${{github.base_ref}} "${{github.head_ref}}" --name-only huaweicloud | grep -v "_test.go")
+          all_files=$(git diff ${{github.base_ref}} "origin/${{github.head_ref}}" --name-only huaweicloud | grep -v "_test.go")
           for f in $all_files; do
               path=${f%/*}
               if [ "$path" != "huaweicloud" ]; then
