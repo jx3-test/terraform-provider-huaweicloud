@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{github.head_ref}}
-          repository: ${{pull_request.head.repo.full_name}}
+          repository: ${{github.event.pull_request.head.repo.full_name}}
           
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
