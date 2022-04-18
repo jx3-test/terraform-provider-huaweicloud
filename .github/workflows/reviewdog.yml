@@ -34,7 +34,7 @@ jobs:
       - name: fetch pull request head
         run: |
            /usr/bin/git remote add upstream ${{github.server_url}}/${{github.event.pull_request.head.repo.full_name}}
-           /usr/bin/git git fetch upstream ${{github.head_ref}}
+           /usr/bin/git fetch upstream ${{github.head_ref}}
 
 
       - run: git branch -a
