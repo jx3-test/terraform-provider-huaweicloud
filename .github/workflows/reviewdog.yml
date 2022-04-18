@@ -21,19 +21,24 @@ jobs:
       HW_ENTERPRISE_PROJECT_ID: "0"
     steps:
       - run:  echo "${{github.event.pull_request.head.repo.full_name}}"
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{github.head_ref}}
-          repository: ${{github.event.pull_request.head.repo.full_name}}
-          path: "headref"
+      # - uses: actions/checkout@v3
+      #   with:
+      #     ref: ${{github.head_ref}}
+      #     repository: ${{github.event.pull_request.head.repo.full_name}}
           
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: ">=1.16"
 
+      - name: fetch pull request head
+        run: |
+           /usr/bin/git remote add upstream ${{github.server_url}}/${{github.event.pull_request.head.repo.full_name}}
+           /usr/bin/git git fetch upstream ${{github.head_ref}}
+
+
       - run: git branch -a
-      - run: scripts/prAccTest.sh ${{github.base_ref}} ${{github.head_ref}} >pr-acc-test.log
+      - run: scripts/prAccTest.sh ${{github.base_ref}} upstream/${{github.head_ref}} >pr-acc-test.log
 
       - id: get-comment-body
         run: |
