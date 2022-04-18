@@ -20,7 +20,7 @@ jobs:
       HW_REGION_NAME: "cn-north-4"
       HW_ENTERPRISE_PROJECT_ID: "0"
     steps:
-      - run:  echo " ${{github.event.pull_request_target.head.repo.full_name}}"
+      - run:  echo "${{github.event.pull_request_target.head.repo.full_name}}"
       - uses: actions/checkout@v3
         with:
           ref: ${{github.head_ref}}
