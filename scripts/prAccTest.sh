@@ -21,6 +21,6 @@ for f in $all_files; do
             echo "\`\`\`"
         fi
     else
-        echo -e "[skipped] --- ./${test_file} does not exist"
+        echo -e "**[skipped]** --- ./${test_file} does not exist"
     fi
 done
