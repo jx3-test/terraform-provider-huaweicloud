@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	scopeUser        = "user"
-	scopeDomainValue = "domain"
-	scopeDomainLabel = "account"
+	scopeUser         = "user"
+	scopeDomainValue  = "domain"
+	scopeDomainLabel  = "account"
 	scopeDomainLabel2 = "account"
 )
 
