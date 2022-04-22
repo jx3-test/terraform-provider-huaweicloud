@@ -48,7 +48,7 @@ func TestAccKpsKeypair_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test"),
+					resource.TestCheckResourceAttr(resourceName, "description", "created by acc test2"),
 					resource.TestCheckResourceAttr(resourceName, "scope", "user"),
 					resource.TestCheckResourceAttr(resourceName, "is_managed", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
