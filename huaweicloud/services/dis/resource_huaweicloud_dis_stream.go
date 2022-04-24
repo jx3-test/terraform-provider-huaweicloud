@@ -267,7 +267,7 @@ func resourceDisStreamRead(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	if setSdErr := mErr.ErrorOrNil(); setSdErr != nil {
-		return fmtp.DiagErrorf("Error setting vault fields: %s", setSdErr)
+		return fmtp.DiagErrorf("Error setting vault fields333: %s", setSdErr)
 	}
 
 	return nil
