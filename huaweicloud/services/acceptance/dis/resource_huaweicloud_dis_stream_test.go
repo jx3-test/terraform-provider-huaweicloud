@@ -43,7 +43,7 @@ func TestAccResourceDisStream_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "stream_name", name),
-					resource.TestCheckResourceAttr(resourceName, "partitions.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "partitions.#", "10"),
 				),
 			},
 			{
