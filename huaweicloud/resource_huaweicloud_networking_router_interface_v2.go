@@ -204,7 +204,7 @@ func waitForRouterInterfaceDelete(networkingClient *golangsdk.ServiceClient, d *
 			return r, "ACTIVE", err
 		}
 
-		logp.Printf("[DEBUG] HuaweiCloud Router Interface %s is still active.", routerInterfaceId)
+		logp.Printf("[DEBUG] HuaweiCloud Router Interface %s is still active.3", routerInterfaceId)
 		return r, "ACTIVE", nil
 	}
 }
